@@ -7,16 +7,12 @@ from twscrape import API, gather
 async def fetch_tweets(api, limit=100, querys=[]):
     for query in querys:
         tweets = await gather(api.search(query, limit=limit))
-        # Guarda los tweets en un archivo
-        nameFile = f'{query}.txt'
-        print("Guardando tweets en", nameFile)
+        nameFile = f'src\\etl\\res\\reports_presidents\\{query}.txt'
         archivo = open(nameFile, 'w', encoding='utf-8')
 
         for tweet in tweets:
-            print(tweet.id, tweet.rawContent + "...\n\n ")
             archivo.write(f"{tweet.id}\n{tweet.rawContent}\n\n\n")
         archivo.close()
-        print("Tweets guardados en", nameFile)
 
 async def main():
     load_dotenv()
@@ -30,7 +26,7 @@ async def main():
     await api.pool.add_account(username, password, email, email_password)
     await api.pool.login_all()
 
-    archivo = open('src\\res\\presidentes_latam.txt', 'r', encoding='utf-8')
+    archivo = open('src\\etl\\res\\presidentes_latam.txt', 'r', encoding='utf-8')
     president_names = archivo.read().splitlines()
 
     # Presidentes obligatorios.
