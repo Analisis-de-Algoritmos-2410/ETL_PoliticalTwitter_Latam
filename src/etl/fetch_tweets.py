@@ -1,35 +1,38 @@
 import os
 import asyncio
+import random
 from dotenv import load_dotenv
-
-# Suponiendo que twscrape es una biblioteca hipotética, reemplázala por la que uses.
 from twscrape import API, gather
 
-async def fetch_tweets(api, query, limit=100):
-    # Esta función asincrónica extrae tweets usando la API de twscrape.
-    tweets = await gather(api.search(query, limit=limit))
-    return tweets
+async def fetch_tweets(api, limit=100, querys=[]):
+    for query in querys:
+        tweets = await gather(api.search(query, limit=limit))
+        # Guarda los tweets en un archivo
+        nameFile = f'{query}.txt'
+        print("Guardando tweets en", nameFile)
+        archivo = open(nameFile, 'w', encoding='utf-8')
+
+        for tweet in tweets:
+            print(tweet.id, tweet.rawContent + "...\n\n ")
+            archivo.write(f"{tweet.id}\n{tweet.rawContent}\n\n\n")
+        archivo.close()
+        print("Tweets guardados en", nameFile)
 
 async def main():
-    load_dotenv()  # Carga las variables de entorno desde un archivo .env
+    load_dotenv()
 
-    # Estas líneas obtienen las credenciales de Twitter desde las variables de entorno
     username = os.getenv('TWITTER_USERNAME')
     password = os.getenv('TWITTER_PASSWORD')
     email = os.getenv('TWITTER_EMAIL')
     email_password = os.getenv('TWITTER_EMAIL_PASSWORD')
 
-    # Inicializa y configura la API de twscrape con las credenciales de usuario
     api = API()
     await api.pool.add_account(username, password, email, email_password)
     await api.pool.login_all()
 
-    # Llama a la función fetch_tweets para extraer tweets con un término específico
-    tweets = await fetch_tweets(api, 'política', limit=100)
+    
 
-    # Ejemplo de cómo podrías manejar los tweets extraídos
-    for tweet in tweets:
-        print(f"{tweet.id}\t{tweet.rawContent}\n")
+    await fetch_tweets(api, limit=100, querys=targets)
 
 if __name__ == "__main__":
     asyncio.run(main())
