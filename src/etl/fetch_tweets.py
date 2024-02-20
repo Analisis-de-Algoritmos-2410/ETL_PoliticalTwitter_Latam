@@ -30,7 +30,16 @@ async def main():
     await api.pool.add_account(username, password, email, email_password)
     await api.pool.login_all()
 
-    
+    archivo = open('src\\res\\presidentes_latam.txt', 'r', encoding='utf-8')
+    president_names = archivo.read().splitlines()
+
+    # Presidentes obligatorios.
+    targets = ['Gustavo Petro', 'Nayib Bukele']
+
+    number = int(input("Ingrese la cantidad de presidentes a scrapp: "))
+
+    for i in range(1, number+1):
+        targets.append(random.choice(president_names))
 
     await fetch_tweets(api, limit=100, querys=targets)
 
